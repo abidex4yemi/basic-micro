@@ -132,7 +132,11 @@ const Tasks = (props) => {
         {!tasks.length && (
           <Box className={classes.noTask}>
             <Typography variant="h5" align="center">
-              No task 💪
+              No task{' '}
+              <span role="img" aria-labelledby="strong">
+                {' '}
+                💪{' '}
+              </span>
             </Typography>
           </Box>
         )}

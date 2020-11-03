@@ -1,0 +1,38 @@
+language: ruby
+
+services:
+  - docker
+
+# before_install:
+#   - docker build -t $DOCKER_USERNAME/client-test -f ./client/Dockerfile.dev ./client/
+
+# script:
+#   - docker run -e CI=true $DOCKER_USERNAME/client-test npm test -- --coverage
+
+after_success:
+  - docker build -t $DOCKER_USERNAME/micro-mvp_client ./client
+  - docker build -t $DOCKER_USERNAME/micro-mvp_taskapi ./tasks-service
+  - docker build -t $DOCKER_USERNAME/micro-mvp_userapi ./users-service
+  - docker build -t $DOCKER_USERNAME/micro-mvp_worker ./worker
+  - docker build -t $DOCKER_USERNAME/micro-mvp_nginx ./nginx
+  # login into docker hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  # push built images to docker hub
+  - docker push $DOCKER_USERNAME/micro-mvp_client
+  - docker push $DOCKER_USERNAME/micro-mvp_taskapi
+  - docker push $DOCKER_USERNAME/micro-mvp_userapi
+  - docker push $DOCKER_USERNAME/micro-mvp_nginx
+  - docker push $DOCKER_USERNAME/micro-mvp_worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: us-east-2
+  app: micro-mvp
+  env: MicroMvp-env
+  bucket_name: elasticbeanstalk-us-east-2-918123694774
+  bucket_path: micro-mvp
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: $AWS_SECRET_KEY
