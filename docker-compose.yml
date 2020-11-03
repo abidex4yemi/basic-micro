@@ -60,6 +60,7 @@ services:
       - /app/node_modules
       - ./client:/app
     container_name: bunnyclient
+    tty: true
   worker:
     build:
       dockerfile: Dockerfile.dev
