@@ -1,0 +1,51 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "bunnyclient",
+      "image": "abidex4yemi/micro-mvp_client",
+      "hostname": "client",
+      "essential": false,
+      "memory": 128
+    },
+    {
+      "name": "bunnytaskapi",
+      "image": "abidex4yemi/micro-mvp_taskapi",
+      "hostname": "taskapi",
+      "essential": false,
+      "memory": 128
+    },
+    {
+      "name": "bunnyuserapi",
+      "image": "abidex4yemi/micro-mvp_userapi",
+      "hostname": "userapi",
+      "essential": false,
+      "memory": 128
+    },
+    {
+      "name": "bunnyworker",
+      "image": "abidex4yemi/micro-mvp_worker",
+      "hostname": "worker",
+      "essential": false,
+      "memory": 128
+    },
+    {
+      "name": "bunnynginx",
+      "image": "abidex4yemi/micro-mvp_nginx",
+      "hostname": "nginx",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [
+        "bunnyuserapi",
+        "bunnytaskapi",
+        "bunnyclient"
+      ],
+      "memory": 128
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: bunnymongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/data/db
+  nginx:
+    restart: always
+    container_name: bunnynginx
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - 3050:80
+  redis:
+    image: 'redis:latest'
+    container_name: bunnyredis
+  userapi:
+    build:
+      dockerfile: Dockerfile.dev
+      context: './users-service'
+    restart: always
+    container_name: bunnyuserapi
+    volumes:
+      - /app/node_modules
+      - ./users-service:/app
+    links:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - DEV_ENV_DB_NAME=bunny
+      - PROD_ENV_DB_NAME=bunny
+      - REDIS_HOST="redis"
+      - REDIS_PORT="6379"
+  taskapi:
+    build:
+      dockerfile: Dockerfile.dev
+      context: './tasks-service'
+    restart: always
+    container_name: bunnytaskapi
+    volumes:
+      - /app/node_modules
+      - ./tasks-service:/app
+    links:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://bunnymongodb:27017
+      - DEV_ENV_DB_NAME=bunny
+      - PROD_ENV_DB_NAME=bunny
+      - REDIS_HOST="redis"
+      - REDIS_PORT="6379"
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: './client'
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+    container_name: bunnyclient
+  worker:
+    build:
+      dockerfile: Dockerfile.dev
+      context: './worker'
+    container_name: bunnyworker
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
+
+volumes:
+  data:
